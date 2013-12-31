@@ -39,7 +39,6 @@ class SimulatorSurface extends JPanel implements Runnable {
 			
 			this.render()			
 			end = System.nanoTime();
-			if (end - start )
 		}
 		
 	}

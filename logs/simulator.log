@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2013-12-30T21:14:46</date>
+  <millis>1388456086109</millis>
+  <sequence>0</sequence>
+  <logger>plutoDNA_simulator.Simulator</logger>
+  <level>INFO</level>
+  <class>java_util_logging_Logger$info</class>
+  <method>call</method>
+  <thread>1</thread>
+  <message>[OBJ-Simulator] instantiated</message>
+</record>
+</log>
