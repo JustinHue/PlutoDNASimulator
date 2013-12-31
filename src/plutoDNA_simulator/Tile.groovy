@@ -12,4 +12,7 @@ class Tile {
 		return this.value
 	}
 	
+	public setValue(value) {
+		this.value = value
+	}
 }

@@ -1,32 +1,58 @@
 package plutoDNA_simulator
-import groovy.util.logging.*
 
-import java.util.logging.FileHandler
+import java.awt.image.BufferedImage
 
-@Log
 class Simulator {
 
 	private def window
 	private def world
 	
+	private def instance
+	private def running
+	
 	public Simulator() {
-		log.addHandler(new FileHandler("logs/simulator.log"))
-		
-		log.info '[OBJ-Simulator] instantiated'
-
 		this.world = new World(Assets.globalConfig.world.width, Assets.globalConfig.world.height)
 		this.window = new SimulatorWindow()
+		
+		this.running = true
 	}
 	
 	public start() {
-		this.world.start()
-		this.window.start()
+		
+		this.instance = Thread.start {
+			
+			this.window.start()
+		    this.world.start()
+			
+			def start = System.nanoTime();
+			def end = 0;
+			
+			while (this.running) {
+				if (end - start >= 1000 / Assets.globalConfig.graphics.fps * 1000000) {
+					println 'Tick Elapse Time Per Frame: ' + ((end - start) / 1000000) + ' ms'
+					if (this.world.doneUpdating()) {
+						def worldBuffer = this.world.render(800, 600)
+						this.window.drawBuffer(worldBuffer)
+						start = System.nanoTime();
+					}
+				} else {
+					sleep(1)
+				}
+				end = System.nanoTime();
+			}
+			
+		}
+		
+	}
+	
+	public stop() {
+		this.running = true
 	}
 	
 	public static void main (String [] args) {
 			
 			Assets.prepare()
-			new Simulator().start()
-			
+			def simulator = new Simulator().start()
+	
 	}
 }

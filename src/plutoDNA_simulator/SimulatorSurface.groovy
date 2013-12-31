@@ -2,6 +2,7 @@ package plutoDNA_simulator
 
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
 class SimulatorSurface extends JPanel implements Runnable {
@@ -19,10 +20,10 @@ class SimulatorSurface extends JPanel implements Runnable {
 		this.interval = 1000 / Assets.globalConfig.graphics.fps
 	}
 	
-	private void render() {
+	public void render(bi) {
 		
 		Graphics2D g2d = (Graphics2D) this.getGraphics()
-		
+		g2d.drawImage(bi, 0, 0, 800, 600, 0, 0, 800, 600, null)
 
 	}
 		

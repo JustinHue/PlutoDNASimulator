@@ -1,5 +1,6 @@
 package plutoDNA_simulator
 
+import java.awt.image.BufferedImage
 import javax.swing.JFrame
 
 class SimulatorWindow extends JFrame {
@@ -27,4 +28,7 @@ class SimulatorWindow extends JFrame {
 		this.surface.start()
 	}
 	
+	public drawBuffer(buffer) {
+		this.surface.render(buffer)
+	}
 }
