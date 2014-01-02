@@ -4,118 +4,191 @@ import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.awt.Color
 
-class World {
 
-	
+class World implements IWorld {
+
 	private def tiles
 	private def instance
 	
 	private def running
 	private def updating
 	
-	// Scroll Values
-	private def scrollx, scrolly
 	
 	public World(sizew, sizeh) {
 		Random rand = new Random()
 		this.tiles = new Tile[sizew][sizeh]	
+
 		this.tiles.eachWithIndex {row, rindex ->
 			row.eachWithIndex {tile, cindex ->
-				this.tiles[rindex][cindex] = new Tile(rand.nextInt(10))			
+				this.tiles[rindex][cindex] = new Tile(-1)			
 			}
 		} 
+
+		// ** World Generator **
+		def generated = false
 		
-		this.scrollx = rand.nextInt(Assets.globalConfig.world.width - 32)
-		this.scrolly = rand.nextInt(Assets.globalConfig.world.height - 32)
+		// seed tiles with random environment tile 
+		// All tiles generated will branch from these seeded tiles
+		def seedmax = 20
+		def seedcount = 0
 		
-		this.running = true
-		this.updating = true
+		while (seedcount != seedmax) {
+			def randomtile = rand.nextInt(3)
+			def randomx = rand.nextInt(this.getWidthTI() - 1)
+			def randomy = rand.nextInt(this.getHeightTI() - 1)
+			this.tiles[randomy][randomx] = new Tile(randomtile)
+			// branch from tile
+			def doneBranching = false
+			def dirtSpawnChance = 5
+			//def waterSpawnChance = 70
+			
+			while (!doneBranching) {
+				// Check left Adjacent tile
+				def nTile = null
+				if (randomx-1 >= 0) {
+					def spawnChance = rand.nextInt(100)
+					if (spawnChance < dirtSpawnChance) {
+						nTile = new Tile(Tile.TILE_DIRT)
+					} else {
+						nTile = new Tile(Tile.TILE_WATER)
+					}
+					if (this.tiles[randomy-1][randomx].getValue() == -1) {
+						this.tiles[randomy][randomx-1] = nTile
+					}
+				}
+				// Check Right Adjacent tile
+				if (randomx+1 < this.getWidthTI() - 1) {
+					def spawnChance = rand.nextInt(100)
+					if (spawnChance < dirtSpawnChance) {
+						nTile = new Tile(Tile.TILE_DIRT)
+					} else {
+						nTile = new Tile(Tile.TILE_WATER)
+					}
+					if (this.tiles[randomy-1][randomx].getValue() == -1) {
+						this.tiles[randomy][randomx+1] = nTile
+					}
+				}
+				// Check Top Adjacent tile
+				if (randomy-1 >= 0) {
+					def spawnChance = rand.nextInt(100)
+					if (spawnChance < dirtSpawnChance) {
+						nTile = new Tile(Tile.TILE_DIRT)
+					} else {
+						nTile = new Tile(Tile.TILE_WATER)
+					}
+					if (this.tiles[randomy-1][randomx].getValue() == -1) {
+						this.tiles[randomy-1][randomx] = nTile
+					}
+				}
+				// Check Bottom Adjacent tile
+				if (randomy+1 < this.getHeightTI() - 1) {
+					def spawnChance = rand.nextInt(100)
+					if (spawnChance < dirtSpawnChance) {
+						nTile = new Tile(Tile.TILE_DIRT)
+					} else {
+						nTile = new Tile(Tile.TILE_WATER)
+					}
+					if (this.tiles[randomy-1][randomx].getValue() == -1) {
+						this.tiles[randomy+1][randomx] = nTile
+					}
+				}
+				// Also stop if no new tiles were made
+				if (!nTile) {
+					doneBranching = true
+				} else {
+					// Pick Random Side to branch off of (or stop)
+					def randomSide = rand.nextInt(4)
+					if (randomSide == 0) {
+						randomy -= 1
+					} else if (randomSide == 1) {
+						randomx -= 1
+					} else if (randomSide == 2) {
+						randomx += 1
+					} else if (randomSide == 3) {
+						randomy += 1
+					} 
+					if (randomy < 0 || randomy > this.getHeightTI() - 1 ||
+						randomx < 0 || randomx > this.getHeightTI() - 1) {
+						doneBranching = true
+					}
+				}
+			}
+			seedcount ++
+		}
+		
+		this.tiles.eachWithIndex {row, rindex ->
+			row.eachWithIndex {tile, cindex ->
+				if (this.tiles[rindex][cindex].getValue() == -1) this.tiles[rindex][cindex] = new Tile(Tile.TILE_DIRT)
+			}
+		}
+		
+		this.running = false
+		this.updating = false
+
 	}
 	
-	private AI() {
+
+
+	@Override
+	public void AI() {
+		Random rand = new Random()
 		for (row in this.tiles) {
 			for (tile in row) {
-				def tileValue = tile.getValue()
+		
 			}
 		}
 		
 		this.updating = false
 	}
-	
-	public getSize() {
-		return [tiles.size(), tiles[0].size()]
-	}
-	
-	public getTile(x, y) {
-		return tiles[x][y]
-	}
 
-	public start() {
-		
-		this.instance = Thread.start {
-			while (this.running) {
-				if (this.updating) { 
-					this.AI() 
-				}
-			}
-		}
-		
-	}	
 
-	public stop() {
-		this.running = true
-	}
-
-	public doUpdate() {
+	@Override
+	public void update() {
 		this.updating = true
-	}
-	
-	public render(width, height) {
-		def buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-		def g2d = buffer.createGraphics()
-		// Only draw portion of the world thats visible to the dimensions passed through. 
-		def visibleIW = width / Assets.globalConfig.world.tilesize
-		def visibleIH = height / Assets.globalConfig.world.tilesize
-		def y = 0
-		
-
-		for (ix in this.scrolly..this.scrolly+visibleIH) {
-			def x = 0
-			for (iy in this.scrollx..this.scrollx+visibleIW) {
-				switch (this.getTile(ix, iy).getValue()) {
-					case 0:
-						g2d.setColor(Color.BLUE)
-						break
-					case 1:
-						g2d.setColor(Color.GREEN)
-						break
-					case 2:
-						g2d.setColor(Color.RED)
-						break
-					case 3:
-						g2d.setColor(Color.YELLOW)
-						break
-					case 4:
-						g2d.setColor(Color.GRAY)
-						break
-					case 5:
-						g2d.setColor(Color.WHITE)
-						break
-					default:
-						g2d.setColor(Color.BLACK)
-						break
-				}
-				g2d.fill(new Rectangle(x, y, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize))
-				x += Assets.globalConfig.world.tilesize
-			}	
-			y += Assets.globalConfig.world.tilesize
+		this.running = true
+		this.instance = Thread.start {
+			if (this.updating) this.AI()
 		}
-		g2d.dispose()
-		return buffer
+		this.running = false
 	}
-	
-	public doneUpdating() {
+
+
+	@Override
+	public boolean doneUpdating() {
 		return !this.updating
+	}
+
+
+
+	@Override
+	public getSize() {
+		return [this.tiles.size() * Assets.globalConfig.world.tilesize, 
+			    this.tiles[0].size() * Assets.globalConfig.world.tilesize]
+	}
+
+	@Override
+	public def getSizeTI() {
+		return [this.tiles.size(), this.tiles[0].size() ]
+	}
+
+
+
+	@Override
+	public def getWidthTI() {
+		return this.tiles.size()
+	}
+
+
+
+	@Override
+	public def getHeightTI() {
+		return this.tiles[0].size()
+	}
+
+
+	@Override
+	public getTile(x, y) {
+		return this.tiles[x][y]
 	}
 
 }

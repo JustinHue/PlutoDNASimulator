@@ -1,47 +1,46 @@
 package plutoDNA_simulator
 
-class Entity {
+import java.awt.Point
+
+class Entity implements IEntity {
 	
 	private def DNA
 	private def instance
-	private def running
 	private def updating
+	private def running
+	
+	private def coordinate
 	
 	public Entity() {
 		this.DNA = ""	
-		this.running = true
+		this.running = false
+		this.updating = false
+		this.coordinate = new Point()
 	}
 	
 	public Entity(DNA) {
 		this.DNA = DNA
 	}
-	
-	private AI() {
-		// Reads DNA Sequence, start to finish.
 
-		
-		
+	@Override
+	public void AI() {
 		this.updating = false
 	}
-	
-	public start() {
-		
-		this.instance = Thread.start {
-			while (this.running) {
-				
-				if (this.updating) this.AI()
-				
-			} 
-		}
-		
-	}
-	
-	public stop() {
-		this.running = false	
-	}
-	
-	public doUpdate() {
+
+	@Override
+	public void update() {
 		this.updating = true
+		this.instance = Thread.start {	
+			this.running = true
+			if (this.update) this.AI()	
+		}
+		this.running = false
 	}
+
+	@Override
+	public boolean doneUpdating() {
+		return !this.updating
+	}
+
 	
 }
