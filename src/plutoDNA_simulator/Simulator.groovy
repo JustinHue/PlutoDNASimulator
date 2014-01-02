@@ -41,7 +41,8 @@ class Simulator {
 						// Update Manipulator
 						this.manipulator.keyboardInput(this.window.getKeys())
 						
-						def worldBuffer = DrawFactory.renderWorld(world, 800, 600, this.manipulator.getScrollValues())
+						def worldBuffer = DrawFactory.renderWorld(world, Assets.globalConfig.window.width, Assets.globalConfig.window.height, 
+							this.manipulator.getScrollValues())
 						this.window.drawToBuffer(worldBuffer)
 						this.world.update()
 						start = System.nanoTime();

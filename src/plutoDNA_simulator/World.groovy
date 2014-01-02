@@ -39,7 +39,7 @@ class World implements IWorld {
 			this.tiles[randomy][randomx] = new Tile(randomtile)
 			// branch from tile
 			def doneBranching = false
-			def dirtSpawnChance = 5
+			def dirtSpawnChance = 2
 			//def waterSpawnChance = 70
 			
 			while (!doneBranching) {
