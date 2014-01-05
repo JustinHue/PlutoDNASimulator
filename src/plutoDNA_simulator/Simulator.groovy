@@ -28,23 +28,24 @@ class Simulator {
 		
 		this.instance = Thread.start {
 			
+			def delta_time = Assets.globalConfig.graphics.fps / 1000
+
 			this.window.start()
-		    this.world.update()
+		    this.world.update(delta_time)
 			
 			def start = System.nanoTime();
 			def end = 0;
 			
 			while (this.running) {
 				if (end - start >= 1000 / Assets.globalConfig.graphics.fps * 1000000) {
-					//println 'Tick Elapse Time Per Frame: ' + ((end - start) / 1000000) + ' ms'
 					if (this.world.doneUpdating()) {
 						// Update Manipulator
 						this.manipulator.keyboardInput(this.window.getKeys())
 						
 						def worldBuffer = DrawFactory.renderWorld(world, Assets.globalConfig.window.width, Assets.globalConfig.window.height, 
-							this.manipulator.getScrollValues())
+							this.manipulator.getScrollTIValues())
 						this.window.drawToBuffer(worldBuffer)
-						this.world.update()
+						this.world.update(delta_time)
 						start = System.nanoTime();
 					}
 				} else {
@@ -58,7 +59,7 @@ class Simulator {
 	}
 	
 	public stop() {
-		this.running = true
+		this.running = false
 	}
 	
 	public static void main (String [] args) {

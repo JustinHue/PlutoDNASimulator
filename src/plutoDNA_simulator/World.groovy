@@ -8,13 +8,18 @@ import java.awt.Color
 class World implements IWorld {
 
 	private def tiles
+	private def entities
+	
 	private def instance
 	
 	private def running
 	private def updating
-	
+	private def currentDeltaTime
 	
 	public World(sizew, sizeh) {
+		this.entities = []
+		this.entities.add(new Entity(this))
+		
 		Random rand = new Random()
 		this.tiles = new Tile[sizew][sizeh]	
 
@@ -29,7 +34,7 @@ class World implements IWorld {
 		
 		// seed tiles with random environment tile 
 		// All tiles generated will branch from these seeded tiles
-		def seedmax = 20
+		def seedmax = 10
 		def seedcount = 0
 		
 		while (seedcount != seedmax) {
@@ -39,7 +44,7 @@ class World implements IWorld {
 			this.tiles[randomy][randomx] = new Tile(randomtile)
 			// branch from tile
 			def doneBranching = false
-			def dirtSpawnChance = 2
+			def dirtSpawnChance = 0
 			//def waterSpawnChance = 70
 			
 			while (!doneBranching) {
@@ -137,13 +142,42 @@ class World implements IWorld {
 		
 			}
 		}
-		
+		for (entity in this.entities) {
+			// Update Entity
+			entity.update(this.currentDeltaTime)
+		}
+		def allEntitiesUpdated = false
+		while (!allEntitiesUpdated) {
+			allEntitiesUpdated = true
+			for (entity in this.entities) {
+				if (!entity.doneUpdating()) {
+					allEntitiesUpdated = false
+				}
+			}
+		}
+		for (entity in this.entities) {
+			// Check physics + do things that the entity can not control
+			// For instance world boundary checks
+			def physicalComponent = entity.getPhysical()
+			def entityCoordinate = physicalComponent["coordinate"]
+			if (entityCoordinate[0] < 0) {
+				entityCoordinate[0] = 0
+			} else if (entityCoordinate[0] > this.getWidth() - Assets.globalConfig.world.tilesize) {
+				entityCoordinate[0] = this.getWidth() - Assets.globalConfig.world.tilesize
+			}
+			if (entityCoordinate[1] < 0) {
+				entityCoordinate[1] = 0
+			} else if (entityCoordinate[1] > this.getHeight() - Assets.globalConfig.world.tilesize) {
+				entityCoordinate[1] = this.getHeight() - Assets.globalConfig.world.tilesize
+			}
+		}
 		this.updating = false
 	}
 
 
 	@Override
-	public void update() {
+	public def update(delta_time) {
+		this.currentDeltaTime = delta_time
 		this.updating = true
 		this.running = true
 		this.instance = Thread.start {
@@ -167,10 +201,19 @@ class World implements IWorld {
 	}
 
 	@Override
+	public def getWidth() {
+		return this.tiles.size() * Assets.globalConfig.world.tilesize
+	}
+
+	@Override
+	public def getHeight() {
+		return this.tiles[0].size() * Assets.globalConfig.world.tilesize
+	}
+	
+	@Override
 	public def getSizeTI() {
 		return [this.tiles.size(), this.tiles[0].size() ]
 	}
-
 
 
 	@Override
@@ -190,5 +233,28 @@ class World implements IWorld {
 	public getTile(x, y) {
 		return this.tiles[x][y]
 	}
+
+
+
+	@Override
+	public def addEntity(entity) {
+		this.entities.add(entity)
+	}
+
+
+
+	@Override
+	public def getEntities() {
+		return this.entities
+	}
+
+
+	@Override
+	public def removeEntity(entity) {
+		this.entities.remove(entity)
+	}
+
+
+
 
 }

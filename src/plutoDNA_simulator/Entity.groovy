@@ -1,38 +1,61 @@
 package plutoDNA_simulator
 
-import java.awt.Point
-
 class Entity implements IEntity {
 	
 	private def DNA
+	private def physical
+	
 	private def instance
 	private def updating
 	private def running
 	
-	private def coordinate
+	private def world
+	private def currentDeltaTime
 	
-	public Entity() {
+	private def static initial_physical = [
+		"coordinate" : [0, 0],
+		"maxspeed" : 300 // this will be defined or overwritten by dna physical
+		]
+	
+	
+	public Entity(world) {
 		this.DNA = ""	
 		this.running = false
 		this.updating = false
-		this.coordinate = new Point()
+		this.world = world
+		this.physical = Entity.initial_physical
 	}
 	
-	public Entity(DNA) {
+	public Entity(DNA, world) {
 		this.DNA = DNA
+		this.running = false
+		this.updating = false
+		this.world = world
+		this.physical = Entity.initial_physical
 	}
 
 	@Override
 	public void AI() {
+		def args_list = [:]
+		def world_ref = this.world
+		def entity_ref = this
+		
+		def func1 = DNAIntelligence.AI_functions["choose_direction"]
+		def func2 = DNAIntelligence.AI_functions["choose_speed"]
+		def func3 = DNAIntelligence.AI_functions["move"]
+		func1(world_ref, entity_ref, args_list)
+		func2(world_ref, entity_ref, args_list)
+		func3(world_ref, entity_ref, args_list)
 		this.updating = false
 	}
 
 	@Override
-	public void update() {
+	public void update(delta_time) {
+		this.currentDeltaTime = delta_time
 		this.updating = true
 		this.instance = Thread.start {	
 			this.running = true
-			if (this.update) this.AI()	
+			if (this.updating) this.AI()	
 		}
 		this.running = false
 	}
@@ -42,5 +65,20 @@ class Entity implements IEntity {
 		return !this.updating
 	}
 
-	
+	@Override
+	public def getDNA() {
+		return this.DNA
+	}
+
+	@Override
+	public def getPhysical() {
+		return this.physical
+	}
+
+	@Override
+	public def getDeltaTime() {
+		return this.currentDeltaTime
+	}
+
+
 }

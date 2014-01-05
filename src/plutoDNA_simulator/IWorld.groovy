@@ -3,10 +3,12 @@ package plutoDNA_simulator
 interface IWorld {
 
 	void AI()
-	void update()
+	def update(delta_time)
 	boolean doneUpdating()
 	
 	def getSize()
+	def getWidth()
+	def getHeight()
 	def getSizeTI()
 	def getWidthTI()
 	def getHeightTI()

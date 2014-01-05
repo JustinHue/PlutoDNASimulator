@@ -16,12 +16,11 @@ class DrawFactory {
 		
 		drawPosition[0] = (int) drawPosition[0]
 		drawPosition[1] = (int) drawPosition[1]
-		
-		println drawPosition
-		
-		for (iy in drawPosition[1]..drawPosition[1]+visibleIH) {
+		def drawTilePosition = [(int)(drawPosition[0] / Assets.globalConfig.world.tilesize), (int)(drawPosition[1] / Assets.globalConfig.world.tilesize)]
+
+		for (iy in drawTilePosition[1]..drawTilePosition[1]+visibleIH) {
 			def x = 0
-			for (ix in drawPosition[0]..drawPosition[0]+visibleIW) {
+			for (ix in drawTilePosition[0]..drawTilePosition[0]+visibleIW) {
 				def tileImage = DrawFactory.renderTile(world.getTile(ix, iy))
 				g2d.drawImage(tileImage, 
 					x, y, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, null)
@@ -29,14 +28,35 @@ class DrawFactory {
 			}
 			y += Assets.globalConfig.world.tilesize
 		}
+		// Draw Entities
+		
+		for (entity in world.getEntities()) {
+			def entityImage = DrawFactory.renderEntity(entity)
+			def physicalComponent = entity.getPhysical()
+			def entityCoordinate = physicalComponent["coordinate"]
+			// If entity is in viewable range, draw it
+			if (entityCoordinate[0] >= drawPosition[0] && entityCoordinate[0] <= drawPosition[0] + width - Assets.globalConfig.world.tilesize &&
+				entityCoordinate[1] >= drawPosition[1] && entityCoordinate[1] <= drawPosition[1] + height - Assets.globalConfig.world.tilesize) {
+
+				def entityDrawCoordinate = [((int)(entityCoordinate[0] / Assets.globalConfig.world.tilesize)) * Assets.globalConfig.world.tilesize,
+											((int)(entityCoordinate[1] / Assets.globalConfig.world.tilesize)) * Assets.globalConfig.world.tilesize]
+				
+				def drawCoordinate = [(int)(entityDrawCoordinate[0] - drawPosition[0]), (int)(entityDrawCoordinate[1] - drawPosition[1])]
+				
+				g2d.drawImage(entityImage, drawCoordinate[0], drawCoordinate[1],
+						 	Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, null)
+			}
+		}
 		g2d.dispose()
 		return buffer
 	}
 	
 	def static renderTile(tile) {
+
 		def tileImage = new BufferedImage(Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, 
 									BufferedImage.TYPE_INT_RGB)
 		def g2d = tileImage.createGraphics()
+
 		switch (tile.getValue()) {
 			case Tile.TILE_WATER:
 				g2d.setColor(Color.BLUE)
@@ -65,7 +85,13 @@ class DrawFactory {
 	}
 	
 	def static renderEntity(entity) {
+		def entityImage = new BufferedImage(Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize,
+											BufferedImage.TYPE_INT_RGB)
+		def g2d = entityImage.createGraphics()
+		g2d.setColor(Color.WHITE)
 		
+		g2d.fillRect(0, 0, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize)
+		return entityImage
 	}
 	
 }

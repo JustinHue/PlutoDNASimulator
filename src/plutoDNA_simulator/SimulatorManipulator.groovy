@@ -31,6 +31,10 @@ class SimulatorManipulator {
 		return [this.scrollx, this.scrolly]
 	}
 	
+	def getScrollTIValues() {
+		return [this.scrollx * Assets.globalConfig.world.tilesize, this.scrolly * Assets.globalConfig.world.tilesize]
+	}
+	
 	def keyboardInput(keys) {
 		if (keys[KeyEvent.VK_UP]) {
 			this.scrolly -= keys[KeyEvent.VK_SHIFT] ? this.SHIFT_SCROLL_SPEED : this.SCROLL_SPEED
