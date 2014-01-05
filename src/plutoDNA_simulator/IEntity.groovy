@@ -8,5 +8,5 @@ interface IEntity {
 	
 	def getDNA()
 	def getPhysical()
-	def getDeltaTime()
+
 }

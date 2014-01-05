@@ -14,7 +14,7 @@ class World implements IWorld {
 	
 	private def running
 	private def updating
-	private def currentDeltaTime
+	private def deltaTime
 	
 	public World(sizew, sizeh) {
 		this.entities = []
@@ -144,7 +144,7 @@ class World implements IWorld {
 		}
 		for (entity in this.entities) {
 			// Update Entity
-			entity.update(this.currentDeltaTime)
+			entity.update()
 		}
 		def allEntitiesUpdated = false
 		while (!allEntitiesUpdated) {
@@ -156,10 +156,32 @@ class World implements IWorld {
 			}
 		}
 		for (entity in this.entities) {
-			// Check physics + do things that the entity can not control
-			// For instance world boundary checks
 			def physicalComponent = entity.getPhysical()
 			def entityCoordinate = physicalComponent["coordinate"]
+			def entitySpeed = physicalComponent["speed"]
+			def entityDirection = physicalComponent["direction"]
+			
+			// Move entities if they want to move
+			switch (entityDirection) {
+				case DirectionEnum.UP:
+					entityCoordinate[1] -= entitySpeed * this.deltaTime
+					break
+				case DirectionEnum.DOWN:
+					entityCoordinate[1] += entitySpeed * this.deltaTime
+					break
+				case DirectionEnum.LEFT:
+					entityCoordinate[0] -= entitySpeed * this.deltaTime
+					break
+				case DirectionEnum.RIGHT:
+					entityCoordinate[0] += entitySpeed * this.deltaTime
+					break
+				default:
+	
+					break
+			}
+		
+			// Check physics + do things that the entity can not control
+			// For instance world boundary checks
 			if (entityCoordinate[0] < 0) {
 				entityCoordinate[0] = 0
 			} else if (entityCoordinate[0] > this.getWidth() - Assets.globalConfig.world.tilesize) {
@@ -177,7 +199,7 @@ class World implements IWorld {
 
 	@Override
 	public def update(delta_time) {
-		this.currentDeltaTime = delta_time
+		this.deltaTime = delta_time
 		this.updating = true
 		this.running = true
 		this.instance = Thread.start {
