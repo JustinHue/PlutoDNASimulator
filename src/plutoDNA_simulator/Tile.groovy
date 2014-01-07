@@ -8,12 +8,26 @@ class Tile implements ITile {
 
 	private def value
 	
+	private def smell
+	private def windDirection
+	
 	public Tile(value) {
 		this.value = value
+		this.windDirection = DirectionEnum.NONE.value()
+		this.smell = value
 	}
 	@Override
-	public getValue() {
+	public def getValue() {
 		return this.value
+	}
+	
+	@Override
+	public def getSmell() {
+		return this.smell
+	}
+	@Override
+	public def getWindDirection() {
+		return this.windDirection
 	}
 	
 

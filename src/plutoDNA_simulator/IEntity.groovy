@@ -7,6 +7,6 @@ interface IEntity {
 	boolean doneUpdating()
 	
 	def getDNA()
-	def getPhysical()
+	def getCapabilities()
 
 }

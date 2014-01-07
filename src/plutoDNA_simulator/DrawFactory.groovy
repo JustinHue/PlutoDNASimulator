@@ -32,8 +32,8 @@ class DrawFactory {
 		
 		for (entity in world.getEntities()) {
 			def entityImage = DrawFactory.renderEntity(entity)
-			def physicalComponent = entity.getPhysical()
-			def entityCoordinate = physicalComponent["coordinate"]
+			def capabilities = entity.getCapabilities()
+			def entityCoordinate = capabilities["coordinate"]
 			// If entity is in viewable range, draw it
 			if (entityCoordinate[0] >= drawPosition[0] && entityCoordinate[0] <= drawPosition[0] + width - Assets.globalConfig.world.tilesize &&
 				entityCoordinate[1] >= drawPosition[1] && entityCoordinate[1] <= drawPosition[1] + height - Assets.globalConfig.world.tilesize) {

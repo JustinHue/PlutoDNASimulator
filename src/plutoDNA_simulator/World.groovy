@@ -156,23 +156,23 @@ class World implements IWorld {
 			}
 		}
 		for (entity in this.entities) {
-			def physicalComponent = entity.getPhysical()
-			def entityCoordinate = physicalComponent["coordinate"]
-			def entitySpeed = physicalComponent["speed"]
-			def entityDirection = physicalComponent["direction"]
+			def capabilities = entity.getCapabilities()
+			def entityCoordinate = capabilities["coordinate"]
+			def entitySpeed = capabilities["speed"]
+			def entityDirection = capabilities["direction"]
 			
 			// Move entities if they want to move
 			switch (entityDirection) {
-				case DirectionEnum.UP:
+				case DirectionEnum.UP.value():
 					entityCoordinate[1] -= entitySpeed * this.deltaTime
 					break
-				case DirectionEnum.DOWN:
+				case DirectionEnum.DOWN.value():
 					entityCoordinate[1] += entitySpeed * this.deltaTime
 					break
-				case DirectionEnum.LEFT:
+				case DirectionEnum.LEFT.value():
 					entityCoordinate[0] -= entitySpeed * this.deltaTime
 					break
-				case DirectionEnum.RIGHT:
+				case DirectionEnum.RIGHT.value():
 					entityCoordinate[0] += entitySpeed * this.deltaTime
 					break
 				default:

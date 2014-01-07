@@ -3,7 +3,9 @@ package plutoDNA_simulator
 class Entity implements IEntity {
 	
 	private def DNA
-	private def physical
+	
+	private def capabilities
+	private def AIComponent
 	
 	private def instance
 	private def updating
@@ -11,9 +13,8 @@ class Entity implements IEntity {
 	
 	private def world
 	
-	private def static initial_physical = [
+	private def static INITIAL_CAPABILITIES = [
 		"coordinate" : [0, 0],
-		"maxspeed" : 300 // this will be defined or overwritten by dna physical
 		]
 	
 	
@@ -22,7 +23,8 @@ class Entity implements IEntity {
 		this.running = false
 		this.updating = false
 		this.world = world
-		this.physical = Entity.initial_physical
+		this.capabilities = Entity.INITIAL_CAPABILITIES
+		this.AIComponent = ""
 	}
 	
 	public Entity(DNA, world) {
@@ -30,7 +32,8 @@ class Entity implements IEntity {
 		this.running = false
 		this.updating = false
 		this.world = world
-		this.physical = Entity.initial_physical
+		this.capabilities = Entity.INITIAL_CAPABILITIES
+		this.AIComponent = ""
 	}
 
 	@Override
@@ -38,12 +41,11 @@ class Entity implements IEntity {
 		def world_ref = this.world
 		def entity_ref = this
 		
-		def func1 = DNAIntelligence.AI_functions["choose_direction"]
-		def func2 = DNAIntelligence.AI_functions["choose_speed"]
-		def func3 = DNAIntelligence.AI_functions["move"]
-		func1(world_ref, entity_ref)
-		func2(world_ref, entity_ref)
-		func3(world_ref, entity_ref)
+		def func1 = DNAIntelligence.AI_functions["random_generator"]
+		def func2 = DNAIntelligence.AI_functions["move"]
+		def direction = func1(world_ref, entity_ref, [4])
+		def speed = func1(world_ref, entity_ref, [300])
+		def move = func2(world_ref, entity_ref, [direction, speed])
 		
 		this.updating = false
 	}
@@ -69,8 +71,8 @@ class Entity implements IEntity {
 	}
 
 	@Override
-	public def getPhysical() {
-		return this.physical
+	public def getCapabilities() {
+		return this.capabilities
 	}
 
 }
