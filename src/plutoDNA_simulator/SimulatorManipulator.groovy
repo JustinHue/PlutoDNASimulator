@@ -2,70 +2,75 @@ package plutoDNA_simulator
 
 import java.awt.event.KeyEvent;
 
-class SimulatorManipulator {
+class SimulatorManipulator implements ISimulatorManipulator {
 
-	private def final SCROLL_SPEED = 0.5
-	private def final SHIFT_SCROLL_SPEED = 2
+	def static SCROLL_SPEED = Assets.globalConfig.manipulator.scroll_speed
+	def static SHIFT_SCROLL_SPEED = Assets.globalConfig.manipulator.shift_scroll_speed
 	
-	private def world
-	private def window
+	def world
+	def window
 	
-	private def scrollx, scrolly
+	def scroll_point
+	
 	
 	public SimulatorManipulator(world, window) {
-		this.scrollx = 0
-		this.scrolly = 0
+		// Set Regular field variables
+		this.scroll_point = new PhysicsPoint(0, 0)
 		this.world = world
 		this.window = window
 	}
 	
+	@Override
 	def getScrollX() {
-		return this.scrollx	
+		return this.scroll_point.getX()
 	}
 	
+	@Override
 	def getScrollY() {
-		return this.scrolly
+		return this.scroll_point.getY()
 	}
 	
+	@Override
 	def getScrollValues() {
-		return [this.scrollx, this.scrolly]
+		return [this.scroll_point.getX(), this.scroll_point.getY()]
 	}
 	
+	@Override
 	def getScrollTIValues() {
-		return [this.scrollx * Assets.globalConfig.world.tilesize, this.scrolly * Assets.globalConfig.world.tilesize]
+		return [this.scroll_point.getX() / Tile.TILE_SIZE, this.scroll_point.getY() / Tile.TILE_SIZE]
 	}
 	
+	@Override
 	def keyboardInput(keys) {
+		// Check if manipulator is scrolling the map
 		if (keys[KeyEvent.VK_UP]) {
-			this.scrolly -= keys[KeyEvent.VK_SHIFT] ? this.SHIFT_SCROLL_SPEED : this.SCROLL_SPEED
+			PhysicsHandler.move_point_v(this.scroll_point, -(keys[KeyEvent.VK_SHIFT] ? 
+				SimulatorManipulator.SHIFT_SCROLL_SPEED : SimulatorManipulator.SCROLL_SPEED))
 		} 
 		if (keys[KeyEvent.VK_LEFT]) {
-			this.scrollx -= keys[KeyEvent.VK_SHIFT] ? this.SHIFT_SCROLL_SPEED : this.SCROLL_SPEED
+			PhysicsHandler.move_point_h(this.scroll_point, -(keys[KeyEvent.VK_SHIFT] ? 
+				SimulatorManipulator.SHIFT_SCROLL_SPEED : SimulatorManipulator.SCROLL_SPEED))
 		}
 		if (keys[KeyEvent.VK_DOWN]) {
-			this.scrolly += keys[KeyEvent.VK_SHIFT] ? this.SHIFT_SCROLL_SPEED : this.SCROLL_SPEED
+			PhysicsHandler.move_point_v(this.scroll_point, (keys[KeyEvent.VK_SHIFT] ? 
+				SimulatorManipulator.SHIFT_SCROLL_SPEED : SimulatorManipulator.SCROLL_SPEED))
 		}
 		if (keys[KeyEvent.VK_RIGHT]) {
-			this.scrollx += keys[KeyEvent.VK_SHIFT] ? this.SHIFT_SCROLL_SPEED : this.SCROLL_SPEED
+			PhysicsHandler.move_point_h(this.scroll_point, (keys[KeyEvent.VK_SHIFT] ? 
+				SimulatorManipulator.SHIFT_SCROLL_SPEED : SimulatorManipulator.SCROLL_SPEED))
 		}
-		// Shift scrolling
-		
-		if (this.scrollx < 0) {
-			this.scrollx = 0
-			println 'Left Boundary Reached'
-		}
-		if (this.scrolly < 0) {
-			this.scrolly = 0
-			println 'Top Boundary Reached'
-		}
-		if (this.scrollx > this.world.getWidthTI() - this.window.getWidthTI() - 1) {
-			this.scrollx = this.world.getWidthTI() - this.window.getWidthTI() - 1
-			println 'Bottom Boundary Reached'
-		}
-		if (this.scrolly > this.world.getHeightTI() - this.window.getHeightTI() - 1) {
-			this.scrolly = this.world.getHeightTI() - this.window.getHeightTI() - 1
-			println 'Right Boundary Reached'
-		}
+	}
+
+	@Override
+	public def getScrollPoint() {
+		return this.scroll_point
+	}
+
+	@Override
+	public def update() {
+		// Boundary Check
+		PhysicsHandler.point_boundary_collision(this.scroll_point,
+			this.world.getWidth() - this.window.getWidth() - 1, this.world.getHeight() - this.window.getHeight() - 1)
 
 	}
 	

@@ -4,32 +4,47 @@ import java.awt.image.BufferedImage
 
 class Simulator {
 
-	private def window
-	private def world
-	private def manipulator
+	// Simulator Constants grabbed from global.ini
+	def FPS 
+	def SECOND
+	def NANOSECOND
+	def WINDOW_WIDTH
+	def WINDOW_HEIGHT
+	def WORLD_WIDTH 
+	def WORLD_HEIGHT
 	
-	private def instance
-	private def running
+	def window
+	def world
+	def manipulator
 	
-	private def scrollx, scrolly
-	
+	def instance
+	def running
 
 	public Simulator() {
-		this.world = new World(Assets.globalConfig.world.width, Assets.globalConfig.world.height)
+		// Set constants
+		this.FPS = Assets.globalConfig.graphics.fps
+		this.SECOND = Assets.globalConfig.time.second
+		this.NANOSECOND = Assets.globalConfig.time.nanosecond
+		this.WINDOW_WIDTH = Assets.globalConfig.window.width
+		this.WINDOW_HEIGHT = Assets.globalConfig.window.height
+		this.WORLD_WIDTH = Assets.globalConfig.world.width
+		this.WORLD_HEIGHT = Assets.globalConfig.world.height
+		
+		this.world = new World(this.WORLD_WIDTH, this.WORLD_HEIGHT)
+
 		this.window = new SimulatorWindow()
 		this.manipulator = new SimulatorManipulator(this.world, this.window)
 		
 		this.running = true
-		this.scrollx = 0
-		this.scrolly = 0
 	}
 	
 	public start() {
 		
 		this.instance = Thread.start {
 			
-			def delta_time = Assets.globalConfig.graphics.fps / 1000
+			def delta_time = this.FPS / this.SECOND
 
+			// Start window and do Initial World Update
 			this.window.start()
 		    this.world.update(delta_time)
 			
@@ -37,16 +52,23 @@ class Simulator {
 			def end = 0;
 			
 			while (this.running) {
-				if (end - start >= 1000 / Assets.globalConfig.graphics.fps * 1000000) {
+				if (end - start >= this.SECOND / this.FPS * this.NANOSECOND) {
 					if (this.world.doneUpdating()) {
+						
+						// Render World Map
+						def worldBuffer = DrawFactory.renderWorld(world, this.WINDOW_WIDTH, this.WINDOW_HEIGHT, 
+							this.manipulator.getScrollValues())
+						
+						this.window.drawToBuffer(worldBuffer)
+						
 						// Update Manipulator
 						this.manipulator.keyboardInput(this.window.getKeys())
+						this.manipulator.update()
 						
-						def worldBuffer = DrawFactory.renderWorld(world, Assets.globalConfig.window.width, Assets.globalConfig.window.height, 
-							this.manipulator.getScrollTIValues())
-						this.window.drawToBuffer(worldBuffer)
+						// Update World
 						this.world.update(delta_time)
-						start = System.nanoTime();
+						
+						start = System.nanoTime()
 					}
 				} else {
 					sleep(1)
@@ -61,11 +83,5 @@ class Simulator {
 	public stop() {
 		this.running = false
 	}
-	
-	public static void main (String [] args) {
-			
-			Assets.prepare()
-			def simulator = new Simulator().start()
-	
-	}
+
 }

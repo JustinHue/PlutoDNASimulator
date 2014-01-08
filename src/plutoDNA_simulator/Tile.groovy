@@ -2,18 +2,20 @@ package plutoDNA_simulator
 
 class Tile implements ITile {
 
-	public def static TILE_DIRT = 0
-	public def static TILE_WATER = 1
-	public def static TILE_SAND = 2
-
-	private def value
+	def static TILE_DIRT = Assets.globalConfig.world.tiles.DIRT
+	def static TILE_WATER = Assets.globalConfig.world.tiles.WATER
+	def static TILE_SAND = Assets.globalConfig.world.tiles.SAND
+	def static TILE_SIZE = Assets.globalConfig.world.tilesize
 	
-	private def smell
-	private def windDirection
+	def value
+	
+	// Tile Attributes
+	def smell
+	def wind_direction
 	
 	public Tile(value) {
 		this.value = value
-		this.windDirection = DirectionEnum.NONE.value()
+		this.wind_direction = DirectionEnum.NONE.value()
 		this.smell = value
 	}
 	@Override
@@ -27,7 +29,7 @@ class Tile implements ITile {
 	}
 	@Override
 	public def getWindDirection() {
-		return this.windDirection
+		return this.wind_direction
 	}
 	
 

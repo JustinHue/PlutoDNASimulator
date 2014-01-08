@@ -7,16 +7,19 @@ import java.awt.Color
 
 class World implements IWorld {
 
-	private def tiles
-	private def entities
+	def tiles
+	def entities
 	
-	private def instance
+	def instance
 	
-	private def running
-	private def updating
-	private def deltaTime
+	def running
+	def updating
+	def deltaTime
+	
+	def rect
 	
 	public World(sizew, sizeh) {
+		this.rect = new PhysicsRect(0, 0, sizew, sizeh)
 		this.entities = []
 		this.entities.add(new Entity(this))
 		
@@ -28,7 +31,7 @@ class World implements IWorld {
 				this.tiles[rindex][cindex] = new Tile(-1)			
 			}
 		} 
-
+		
 		// ** World Generator **
 		def generated = false
 		
@@ -41,13 +44,16 @@ class World implements IWorld {
 			def randomtile = rand.nextInt(3)
 			def randomx = rand.nextInt(this.getWidthTI() - 1)
 			def randomy = rand.nextInt(this.getHeightTI() - 1)
+			println randomx + " " + randomy
 			this.tiles[randomy][randomx] = new Tile(randomtile)
+
 			// branch from tile
 			def doneBranching = false
 			def dirtSpawnChance = 0
 			//def waterSpawnChance = 70
-			
+	
 			while (!doneBranching) {
+				
 				// Check left Adjacent tile
 				def nTile = null
 				if (randomx-1 >= 0) {
@@ -156,42 +162,37 @@ class World implements IWorld {
 			}
 		}
 		for (entity in this.entities) {
+
 			def capabilities = entity.getCapabilities()
 			def entityCoordinate = capabilities["coordinate"]
 			def entitySpeed = capabilities["speed"]
 			def entityDirection = capabilities["direction"]
+			def entityRect = entity.getRect()
+			def worldRect = this.getInRect()
+
 			
 			// Move entities if they want to move
+			
 			switch (entityDirection) {
 				case DirectionEnum.UP.value():
-					entityCoordinate[1] -= entitySpeed * this.deltaTime
+					PhysicsHandler.move_point_v(entityCoordinate, -entitySpeed * this.deltaTime)
 					break
 				case DirectionEnum.DOWN.value():
-					entityCoordinate[1] += entitySpeed * this.deltaTime
+					PhysicsHandler.move_point_v(entityCoordinate, entitySpeed * this.deltaTime)
 					break
 				case DirectionEnum.LEFT.value():
-					entityCoordinate[0] -= entitySpeed * this.deltaTime
+					PhysicsHandler.move_point_h(entityCoordinate, -entitySpeed * this.deltaTime)
 					break
 				case DirectionEnum.RIGHT.value():
-					entityCoordinate[0] += entitySpeed * this.deltaTime
+					PhysicsHandler.move_point_h(entityCoordinate, entitySpeed * this.deltaTime)
 					break
 				default:
 	
 					break
 			}
-		
-			// Check physics + do things that the entity can not control
-			// For instance world boundary checks
-			if (entityCoordinate[0] < 0) {
-				entityCoordinate[0] = 0
-			} else if (entityCoordinate[0] > this.getWidth() - Assets.globalConfig.world.tilesize) {
-				entityCoordinate[0] = this.getWidth() - Assets.globalConfig.world.tilesize
-			}
-			if (entityCoordinate[1] < 0) {
-				entityCoordinate[1] = 0
-			} else if (entityCoordinate[1] > this.getHeight() - Assets.globalConfig.world.tilesize) {
-				entityCoordinate[1] = this.getHeight() - Assets.globalConfig.world.tilesize
-			}
+			
+			PhysicsHandler.rectangle_boundary_collision(entityRect, worldRect)
+
 		}
 		this.updating = false
 	}
@@ -215,21 +216,22 @@ class World implements IWorld {
 	}
 
 
-
+	// Getters
+	
 	@Override
 	public getSize() {
-		return [this.tiles.size() * Assets.globalConfig.world.tilesize, 
-			    this.tiles[0].size() * Assets.globalConfig.world.tilesize]
+		return [this.tiles.size() * Tile.TILE_SIZE, 
+			    this.tiles[0].size() * Tile.TILE_SIZE]
 	}
 
 	@Override
 	public def getWidth() {
-		return this.tiles.size() * Assets.globalConfig.world.tilesize
+		return this.tiles.size() * Tile.TILE_SIZE
 	}
 
 	@Override
 	public def getHeight() {
-		return this.tiles[0].size() * Assets.globalConfig.world.tilesize
+		return this.tiles[0].size() * Tile.TILE_SIZE
 	}
 	
 	@Override
@@ -274,6 +276,13 @@ class World implements IWorld {
 	@Override
 	public def removeEntity(entity) {
 		this.entities.remove(entity)
+	}
+
+
+
+	@Override
+	public def getInRect() {
+		return this.rect
 	}
 
 

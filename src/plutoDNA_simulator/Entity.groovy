@@ -2,28 +2,24 @@ package plutoDNA_simulator
 
 class Entity implements IEntity {
 	
-	private def DNA
+	def DNA
 	
-	private def capabilities
-	private def AIComponent
+	def capabilities
+	def AIComponent
 	
-	private def instance
-	private def updating
-	private def running
+	def instance
+	def updating
+	def running
 	
-	private def world
+	def world
 	
-	private def static INITIAL_CAPABILITIES = [
-		"coordinate" : [0, 0],
-		]
-	
-	
+
 	public Entity(world) {
-		this.DNA = ""	
+		this.DNA = ""
 		this.running = false
 		this.updating = false
 		this.world = world
-		this.capabilities = Entity.INITIAL_CAPABILITIES
+		this.setInitialCapabilities()
 		this.AIComponent = ""
 	}
 	
@@ -32,10 +28,16 @@ class Entity implements IEntity {
 		this.running = false
 		this.updating = false
 		this.world = world
-		this.capabilities = Entity.INITIAL_CAPABILITIES
+		this.setInitialCapabilities()
 		this.AIComponent = ""
 	}
 
+	private setInitialCapabilities() {
+		this.capabilities = [:]
+		this.capabilities["coordinate"] = new PhysicsPoint(0, 0)
+		this.capabilities["rect"] = new PhysicsRect(this.capabilities["coordinate"], new PhysicsPoint(Tile.TILE_SIZE, Tile.TILE_SIZE))
+	}
+	
 	@Override
 	public void AI() {
 		def world_ref = this.world
@@ -73,6 +75,16 @@ class Entity implements IEntity {
 	@Override
 	public def getCapabilities() {
 		return this.capabilities
+	}
+
+	@Override
+	public def getRect() {
+		return capabilities["rect"]
+	}
+
+	@Override
+	public def getPoint() {
+		return capabilities["coordinate"]
 	}
 
 }

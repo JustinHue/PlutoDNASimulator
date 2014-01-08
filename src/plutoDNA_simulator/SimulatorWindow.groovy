@@ -15,18 +15,15 @@ import javax.swing.KeyStroke
 
 
 class SimulatorWindow extends JFrame implements KeyListener {
-
-	private def final MAX_KEYS = 256
 	
-	private def surface
-	private def buffer
-	private def width, height
+	def surface
+	def buffer
 	
-	private def keys
+	def keys
 
 	public SimulatorWindow() {
 				
-		this.keys = new boolean[MAX_KEYS]
+		this.keys = new boolean[Assets.globalConfig.window.max_keys]
 		
 		this.addKeyListener(this)
 		
@@ -44,9 +41,6 @@ class SimulatorWindow extends JFrame implements KeyListener {
 			setLocationRelativeTo(null)
 		}		
 
-		this.width = Assets.globalConfig.window.width
-		this.height = Assets.globalConfig.window.height
-		
 		this.buffer = new BufferedImage(this.width , this.height,
 				BufferedImage.TYPE_INT_RGB)
 	}
@@ -66,7 +60,19 @@ class SimulatorWindow extends JFrame implements KeyListener {
 	public getKeys() {
 		return this.keys
 	}
-
+	
+	public def getWidthTI() {
+		return this.width / Assets.globalConfig.world.tilesize
+	}
+	
+	public def getHeightTI() {
+		return this.height / Assets.globalConfig.world.tilesize
+	}
+	
+	
+	// ==========================================================================================================
+	// Key Event Listeners
+	// ==========================================================================================================
 	@Override
 	public void keyPressed(KeyEvent e) {
 		this.keys[e.getKeyCode()] = true
@@ -83,12 +89,5 @@ class SimulatorWindow extends JFrame implements KeyListener {
 	}
 	
 
-	public def getWidthTI() {
-		return this.width / Assets.globalConfig.world.tilesize
-	}
-	
-	public def getHeightTI() {
-		return this.height / Assets.globalConfig.world.tilesize
-	}
-	
+
 }

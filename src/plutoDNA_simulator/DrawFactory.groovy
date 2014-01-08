@@ -7,44 +7,47 @@ import java.awt.Rectangle
 class DrawFactory {
 
 	def static renderWorld(world, width, height, drawPosition) {
+		
 		def buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 		def g2d = buffer.createGraphics()
+		
 		// Only draw portion of the world thats visible to the dimensions passed through.
-		def visibleIW = width / Assets.globalConfig.world.tilesize
-		def visibleIH = height / Assets.globalConfig.world.tilesize
+		def visibleIW = width / Tile.TILE_SIZE
+		def visibleIH = height / Tile.TILE_SIZE
 		def y = 0
 		
 		drawPosition[0] = (int) drawPosition[0]
 		drawPosition[1] = (int) drawPosition[1]
-		def drawTilePosition = [(int)(drawPosition[0] / Assets.globalConfig.world.tilesize), (int)(drawPosition[1] / Assets.globalConfig.world.tilesize)]
-
+		def drawTilePosition = [(int)(drawPosition[0] / Tile.TILE_SIZE), (int)(drawPosition[1] / Tile.TILE_SIZE)]
+		
+		// Draw Tiles
 		for (iy in drawTilePosition[1]..drawTilePosition[1]+visibleIH) {
 			def x = 0
 			for (ix in drawTilePosition[0]..drawTilePosition[0]+visibleIW) {
 				def tileImage = DrawFactory.renderTile(world.getTile(ix, iy))
 				g2d.drawImage(tileImage, 
-					x, y, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, null)
-				x += Assets.globalConfig.world.tilesize
+					x, y, Tile.TILE_SIZE, Tile.TILE_SIZE, null)
+				x += Tile.TILE_SIZE
 			}
-			y += Assets.globalConfig.world.tilesize
+			y += Tile.TILE_SIZE
 		}
-		// Draw Entities
 		
+		// Draw Entities
 		for (entity in world.getEntities()) {
 			def entityImage = DrawFactory.renderEntity(entity)
 			def capabilities = entity.getCapabilities()
-			def entityCoordinate = capabilities["coordinate"]
+			def entityCoordinate = [capabilities["coordinate"].getX(), capabilities["coordinate"].getY()]
 			// If entity is in viewable range, draw it
-			if (entityCoordinate[0] >= drawPosition[0] && entityCoordinate[0] <= drawPosition[0] + width - Assets.globalConfig.world.tilesize &&
-				entityCoordinate[1] >= drawPosition[1] && entityCoordinate[1] <= drawPosition[1] + height - Assets.globalConfig.world.tilesize) {
+			if (entityCoordinate[0] >= drawPosition[0] && entityCoordinate[0] <= drawPosition[0] + width - Tile.TILE_SIZE &&
+				entityCoordinate[1] >= drawPosition[1] && entityCoordinate[1] <= drawPosition[1] + height - Tile.TILE_SIZE) {
 
-				def entityDrawCoordinate = [((int)(entityCoordinate[0] / Assets.globalConfig.world.tilesize)) * Assets.globalConfig.world.tilesize,
-											((int)(entityCoordinate[1] / Assets.globalConfig.world.tilesize)) * Assets.globalConfig.world.tilesize]
+				def entityDrawCoordinate = [((int)(entityCoordinate[0] / Tile.TILE_SIZE)) * Tile.TILE_SIZE,
+											((int)(entityCoordinate[1] / Tile.TILE_SIZE)) * Tile.TILE_SIZE]
 				
 				def drawCoordinate = [(int)(entityDrawCoordinate[0] - drawPosition[0]), (int)(entityDrawCoordinate[1] - drawPosition[1])]
 				
 				g2d.drawImage(entityImage, drawCoordinate[0], drawCoordinate[1],
-						 	Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, null)
+						 	Tile.TILE_SIZE, Tile.TILE_SIZE, null)
 			}
 		}
 		g2d.dispose()
@@ -53,7 +56,7 @@ class DrawFactory {
 	
 	def static renderTile(tile) {
 
-		def tileImage = new BufferedImage(Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize, 
+		def tileImage = new BufferedImage(Tile.TILE_SIZE, Tile.TILE_SIZE, 
 									BufferedImage.TYPE_INT_RGB)
 		def g2d = tileImage.createGraphics()
 
@@ -80,17 +83,17 @@ class DrawFactory {
 				g2d.setColor(Color.BLACK)
 				break
 		}
-		g2d.fillRect(0, 0, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize)
+		g2d.fillRect(0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE)
 		return tileImage
 	}
 	
 	def static renderEntity(entity) {
-		def entityImage = new BufferedImage(Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize,
+		def entityImage = new BufferedImage(Tile.TILE_SIZE, Tile.TILE_SIZE,
 											BufferedImage.TYPE_INT_RGB)
 		def g2d = entityImage.createGraphics()
 		g2d.setColor(Color.WHITE)
 		
-		g2d.fillRect(0, 0, Assets.globalConfig.world.tilesize, Assets.globalConfig.world.tilesize)
+		g2d.fillRect(0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE)
 		return entityImage
 	}
 	
