@@ -40,6 +40,9 @@ class Simulator {
 	
 	public start() {
 		
+		Trace.setLogLevel(Trace.LOG_LEVEL.ERROR)
+		Trace.error("Simulator","LOG START")
+		
 		this.instance = Thread.start {
 			
 			def delta_time = this.FPS / this.SECOND
