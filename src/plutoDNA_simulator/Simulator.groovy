@@ -42,6 +42,7 @@ class Simulator {
 		
 		Trace.setLogLevel(Trace.LOG_LEVEL.ERROR)
 		Trace.error("Simulator","LOG START")
+		Trace.error("Simulator","LOG END")
 		
 		this.instance = Thread.start {
 			

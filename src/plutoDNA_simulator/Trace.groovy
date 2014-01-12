@@ -2,10 +2,13 @@ package plutoDNA_simulator
 import java.util.Date
 
 
+
 class Trace {
 
-	
+	def private static haveDate = false
+	def private static String timeStamp
 	def static LEVEL = LOG_LEVEL.ERROR
+	def private final String ENDL = System.getProperty("line.seperator")
 	
 	static enum LOG_LEVEL {
 		ERROR, WARNING, INFO
@@ -64,9 +67,18 @@ class Trace {
 	def static log(className, threadID = "", string){
 		
 		//def date = new Date()
-		//String timeStamp = date.getDateTimeString()
-		def f = new File(className + ".log").withWriter { out ->
-			out.writeLine(string)
+		
+		if (!haveDate){
+			def date = new Date()
+			timeStamp =date.format("yyyyMMddHHmmss")
+			//timeStamp = date.getDateTimeString()
+			//timeStamp = timeStamp.replaceAll(" ", "-")
+			println timeStamp
+			haveDate = true
+		}
+		
+		def f = new File(timeStamp + "-" + className + ".log").withWriterAppend { out ->
+			out.append(string+"\n")
 		}
 		
 		
