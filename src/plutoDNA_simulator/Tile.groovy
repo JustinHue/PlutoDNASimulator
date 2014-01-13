@@ -17,14 +17,14 @@ class Tile implements ITile {
 	// Tile Properties
 	def smell
 	def wind_direction
-	def elevation
+
 	
 	public Tile(value) {
 		def random = new Random()
 		this.value = value
 		this.wind_direction = DirectionEnum.NONE.value()
 		this.smell = value
-		this.elevation = ElevationEnum.SEA_LEVEL
+
 		this.setImageValue()
 	}
 	
@@ -33,7 +33,6 @@ class Tile implements ITile {
 		this.value = value
 		this.wind_direction = wind_direction
 		this.smell = smell
-		this.elevation = elevation
 		this.setImageValue()
 	}
 	
