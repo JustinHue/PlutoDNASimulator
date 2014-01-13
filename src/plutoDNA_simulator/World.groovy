@@ -37,19 +37,20 @@ class World implements IWorld {
 		
 		// seed tiles with random environment tile 
 		// All tiles generated will branch from these seeded tiles
-		def seedmax = 10
+		def seedmax = 20
 		def seedcount = 0
 		
 		while (seedcount != seedmax) {
 			def randomtile = rand.nextInt(3)
 			def randomx = rand.nextInt(this.getWidthTI() - 1)
 			def randomy = rand.nextInt(this.getHeightTI() - 1)
-			println randomx + " " + randomy
+
 			this.tiles[randomy][randomx] = new Tile(randomtile)
 
 			// branch from tile
 			def doneBranching = false
 			def dirtSpawnChance = 0
+			def sandSpawnChance = 30
 			//def waterSpawnChance = 70
 	
 			while (!doneBranching) {
@@ -133,6 +134,36 @@ class World implements IWorld {
 			}
 		}
 		
+		// Surround Water with sand
+		this.tiles.eachWithIndex {row, rindex ->
+			row.eachWithIndex {tile, cindex ->
+				if (rindex-1 >= 0) {
+					if (this.tiles[rindex][cindex].getValue() == Tile.TILE_DIRT && 
+						this.tiles[rindex-1][cindex].getValue() == Tile.TILE_WATER) {
+						this.tiles[rindex][cindex] = new Tile(Tile.TILE_SAND)
+					}
+				} 
+				if (rindex+1 < this.getWidthTI() - 1) {
+					if (this.tiles[rindex][cindex].getValue() == Tile.TILE_DIRT &&
+						this.tiles[rindex+1][cindex].getValue() == Tile.TILE_WATER) {
+						this.tiles[rindex][cindex] = new Tile(Tile.TILE_SAND)
+					}
+				} 
+				if (cindex-1 >= 0) {
+					if (this.tiles[rindex][cindex].getValue() == Tile.TILE_DIRT &&
+						this.tiles[rindex][cindex-1].getValue() == Tile.TILE_WATER) {
+						this.tiles[rindex][cindex] = new Tile(Tile.TILE_SAND)
+					}
+				} 
+				if (cindex+1 < this.getHeightTI() - 1) {
+					if (this.tiles[rindex][cindex].getValue() == Tile.TILE_DIRT && 
+						this.tiles[rindex][cindex+1].getValue() == Tile.TILE_WATER) {
+						this.tiles[rindex][cindex] = new Tile(Tile.TILE_SAND)
+					}
+				}
+			}
+		}
+		
 		this.running = false
 		this.updating = false
 
@@ -148,10 +179,17 @@ class World implements IWorld {
 		
 			}
 		}
+		
+		for (tile in this.tiles) {
+			// Update tile
+		//	tile.update()
+
+		}
 		for (entity in this.entities) {
 			// Update Entity
 			entity.update()
 		}
+		
 		def allEntitiesUpdated = false
 		while (!allEntitiesUpdated) {
 			allEntitiesUpdated = true
@@ -161,6 +199,17 @@ class World implements IWorld {
 				}
 			}
 		}
+		
+		def allTilesUpdated = false
+		while (!allTilesUpdated) {
+			allTilesUpdated = true
+			for (tile in this.entities) {
+				if (!tile.doneUpdating()) {
+					allTilesUpdated = false
+				}
+			}
+		}
+		
 		for (entity in this.entities) {
 
 			def capabilities = entity.getCapabilities()

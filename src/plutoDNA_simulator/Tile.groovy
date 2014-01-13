@@ -8,16 +8,43 @@ class Tile implements ITile {
 	def static TILE_SIZE = Assets.globalConfig.world.tilesize
 	
 	def value
+	def imageValue
 	
-	// Tile Attributes
+	def instance
+	def running
+	def updating
+	
+	// Tile Properties
 	def smell
 	def wind_direction
+	def elevation
 	
 	public Tile(value) {
+		def random = new Random()
 		this.value = value
 		this.wind_direction = DirectionEnum.NONE.value()
 		this.smell = value
+		this.elevation = ElevationEnum.SEA_LEVEL
+		this.setImageValue()
 	}
+	
+	public Tile(value, wind_direction, smell, elevation) {
+		def random = new Random()
+		this.value = value
+		this.wind_direction = wind_direction
+		this.smell = smell
+		this.elevation = elevation
+		this.setImageValue()
+	}
+	
+	public setImageValue() {
+		def imageCollection = Assets.ASSETS["environment"][Environment.getTileName(this)]
+		if (imageCollection) {
+			def random = new Random()
+			this.imageValue = random.nextInt(imageCollection.size())
+		}
+	}
+	
 	@Override
 	public def getValue() {
 		return this.value
@@ -32,5 +59,29 @@ class Tile implements ITile {
 		return this.wind_direction
 	}
 	
+	@Override
+	public def getImageValue() {
+		return this.imageValue
+	}
 
+	@Override
+	public def AI() {
+
+	}
+
+	@Override
+	public def update() {
+		println 'updating'
+		this.updating = true
+		this.running = true
+		this.instance = Thread.start {
+			if (this.updating) this.AI()
+		}
+		this.running = false
+	}
+
+	@Override
+	public def doneUpdating() {
+		return !this.updating
+	}
 }

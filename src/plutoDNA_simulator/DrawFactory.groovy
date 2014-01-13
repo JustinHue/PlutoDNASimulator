@@ -58,20 +58,22 @@ class DrawFactory {
 
 		def tileImage = new BufferedImage(Tile.TILE_SIZE, Tile.TILE_SIZE, 
 									BufferedImage.TYPE_INT_RGB)
+		def imageValue = tile.getImageValue()
+
 		def g2d = tileImage.createGraphics()
 
 		switch (tile.getValue()) {
 			case Tile.TILE_WATER:
-				g2d.setColor(Color.BLUE)
+				g2d.drawImage(Assets.ASSETS["environment"]["water"][imageValue], 0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE, null)
 				break
 			case 1:
-				g2d.setColor(Color.GREEN)
+				//g2d.drawImage(Assets.ASSETS["environment"]["grass"][imageValue], 0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE, null)
 				break
 			case Tile.TILE_DIRT:
-				g2d.setColor(new Color(92, 51, 23))
+				g2d.drawImage(Assets.ASSETS["environment"]["dirt"][imageValue], 0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE, null)
 				break
-			case 3:
-				g2d.setColor(Color.YELLOW)
+			case Tile.TILE_SAND:
+				g2d.drawImage(Assets.ASSETS["environment"]["sand"][imageValue], 0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE, null)
 				break
 			case 4:
 				g2d.setColor(Color.GRAY)
@@ -83,7 +85,6 @@ class DrawFactory {
 				g2d.setColor(Color.BLACK)
 				break
 		}
-		g2d.fillRect(0, 0, Tile.TILE_SIZE, Tile.TILE_SIZE)
 		return tileImage
 	}
 	
