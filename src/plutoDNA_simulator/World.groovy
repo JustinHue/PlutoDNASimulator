@@ -243,7 +243,6 @@ class World implements IWorld {
 			PhysicsHandler.rectangle_boundary_collision(entityRect, worldRect)
 
 		}
-		this.updating = false
 	}
 
 
@@ -253,7 +252,8 @@ class World implements IWorld {
 		this.updating = true
 		this.running = true
 		this.instance = Thread.start {
-			if (this.updating) this.AI()
+			this.AI()
+			this.updating = false
 		}
 		this.running = false
 	}

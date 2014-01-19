@@ -16,10 +16,12 @@ class Simulator {
 	def window
 	def world
 	def manipulator
+	def menu
 	
 	def instance
 	def running
-
+	def currentScene
+	
 	public Simulator() {
 		// Set constants
 		this.FPS = Assets.globalConfig.graphics.fps
@@ -33,9 +35,11 @@ class Simulator {
 		this.world = new World(this.WORLD_WIDTH, this.WORLD_HEIGHT)
 
 		this.window = new SimulatorWindow()
+		this.menu = new MenuScene()
 		this.manipulator = new SimulatorManipulator(this.world, this.window)
 		
 		this.running = true
+		this.currentScene = SceneEnum.MENU_SCENE
 	}
 	
 	public start() {
@@ -48,30 +52,48 @@ class Simulator {
 			
 			def delta_time = this.FPS / this.SECOND
 
-			// Start window and do Initial World Update
 			this.window.start()
-		    this.world.update(delta_time)
+		    this.menu.update(delta_time)
 			
 			def start = System.nanoTime();
 			def end = 0;
 			
 			while (this.running) {
 				if (end - start >= this.SECOND / this.FPS * this.NANOSECOND) {
-					if (this.world.doneUpdating()) {
-						
-						// Render World Map
-						def worldBuffer = DrawFactory.renderWorld(world, this.WINDOW_WIDTH, this.WINDOW_HEIGHT, 
-							this.manipulator.getScrollValues())
-						
-						this.window.drawToBuffer(worldBuffer)
-						
-						// Update Manipulator
-						this.manipulator.keyboardInput(this.window.getKeys())
-						this.manipulator.update()
-						
-						// Update World
-						this.world.update(delta_time)
-						
+					switch (this.currentScene) {
+						case SceneEnum.MENU_SCENE:
+							if (this.menu.doneUpdating()) {
+								// Render Menu
+								def menuBuffer = DrawFactory.renderMenu(this.menu, this.WINDOW_WIDTH, this.WINDOW_HEIGHT)
+								this.window.drawToBuffer(menuBuffer)
+								// Update Menu
+								this.menu.keysDown(this.window.getKeysDown())
+								this.menu.keysUp(this.window.getKeysUp())
+								this.menu.keysPressed(this.window.getKeysPressed())
+								this.menu.mousePressed(this.window.getMousePressed())
+								this.menu.mouseReleased(this.window.getMouseReleased())
+								this.menu.mouseDown(this.window.getMouseDown())
+								this.menu.mouseUp(this.window.getMouseUp())
+								this.menu.update(delta_time)
+							}
+						break
+						case SceneEnum.SIMULATOR_SCENE:
+
+							if (this.world.doneUpdating()) {
+								// Render World Map
+								def worldBuffer = DrawFactory.renderWorld(world, this.WINDOW_WIDTH, this.WINDOW_HEIGHT,
+									this.manipulator.getScrollValues())
+								
+								this.window.drawToBuffer(worldBuffer)
+								
+								// Update Manipulator
+								this.manipulator.keyboardInput(this.window.getKeys())
+								this.manipulator.update()
+								
+								// Update World
+								this.world.update(delta_time)
+							}
+						break
 						start = System.nanoTime()
 					}
 				} else {
@@ -79,7 +101,6 @@ class Simulator {
 				}
 				end = System.nanoTime();
 			}
-			
 		}
 		
 	}

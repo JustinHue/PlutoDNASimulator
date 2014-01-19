@@ -98,4 +98,15 @@ class DrawFactory {
 		return entityImage
 	}
 	
+	def static renderMenu(menu, width, height) {
+		def menuImage = new BufferedImage(width, height,
+			BufferedImage.TYPE_INT_RGB)
+		def g2d = menuImage.createGraphics()
+		
+		g2d.setColor(Color.BLACK)
+		g2d.fillRect(0, 0, width, height)
+		
+		return menuImage
+	}
+	
 }
