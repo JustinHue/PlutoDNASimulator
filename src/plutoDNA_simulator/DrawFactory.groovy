@@ -2,6 +2,7 @@ package plutoDNA_simulator
 
 import java.awt.image.BufferedImage
 import java.awt.Color
+import java.awt.Font
 import java.awt.Rectangle
 
 class DrawFactory {
@@ -99,12 +100,38 @@ class DrawFactory {
 	}
 	
 	def static renderMenu(menu, width, height) {
+
 		def menuImage = new BufferedImage(width, height,
 			BufferedImage.TYPE_INT_RGB)
 		def g2d = menuImage.createGraphics()
 		
+		def titleTextLabel = menu.getTitle()
+		def versionTextLabel = menu.getVersion()
+		def copyrightTextLabel = menu.getCopyright()
+		
+		def menuWidth = menu.getWidth()
+		def menuHeight = menu.getHeight()
+		
+		// Render Background
 		g2d.setColor(Color.BLACK)
-		g2d.fillRect(0, 0, width, height)
+		g2d.fillRect(0, 0, menuWidth, menuHeight)
+		g2d.setColor(Color.WHITE)
+		// Render Title Text
+		def titleFont = titleTextLabel.getFont()
+		g2d.setFont(titleFont);
+		g2d.drawString(titleTextLabel.getText(), titleTextLabel.getX(), titleTextLabel.getY())
+		
+		// Render Version Text
+		def versionFont = versionTextLabel.getFont()
+		g2d.setFont(versionFont);
+		g2d.drawString(versionTextLabel.getText(), versionTextLabel.getX(), versionTextLabel.getY())
+		
+		// Render Copyright Text
+		def copyrightFont = copyrightTextLabel.getFont()
+		g2d.setFont(copyrightFont);
+		g2d.drawString(copyrightTextLabel.getText(), copyrightTextLabel.getX(), copyrightTextLabel.getY())
+		
+
 		
 		return menuImage
 	}

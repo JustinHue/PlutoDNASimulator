@@ -35,7 +35,9 @@ class Simulator {
 		this.world = new World(this.WORLD_WIDTH, this.WORLD_HEIGHT)
 
 		this.window = new SimulatorWindow()
-		this.menu = new MenuScene()
+		def windowActualSize = this.window.getSize()
+		println this.window.getSize()
+		this.menu = new SimulatorMenu((int)windowActualSize.getWidth(), (int)windowActualSize.getHeight())
 		this.manipulator = new SimulatorManipulator(this.world, this.window)
 		
 		this.running = true

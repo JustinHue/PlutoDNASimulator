@@ -2,6 +2,14 @@ package plutoDNA_simulator
 
 interface IMenuScene {
 
+	def getTitle()
+	def getVersion()
+	def getCopyright()
+	
+	def getDimensions()
+	def getWidth()
+	def getHeight()
+	
 	// AI + Update
 	def AI()
 	def update(delta_time)

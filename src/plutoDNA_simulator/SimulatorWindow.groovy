@@ -43,11 +43,13 @@ class SimulatorWindow extends JFrame implements KeyListener, MouseListener {
 		
 		// Add surface to window
 		this.surface = new JPanel()
+		
 		this.add(this.surface)
 		
 		// Set window properties
 		this.setTitle(Assets.globalConfig.window.title)
 		this.setSize(Assets.globalConfig.window.width, Assets.globalConfig.window.height)
+		
 		if (Assets.globalConfig.window.options.setDefaultCloseOperation) {
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 		}
@@ -193,6 +195,5 @@ class SimulatorWindow extends JFrame implements KeyListener, MouseListener {
 		this.mouseButtonsUp[e.getButton()] = true
 	}
 	
-
 
 }

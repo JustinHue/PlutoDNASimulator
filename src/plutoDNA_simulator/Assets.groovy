@@ -1,5 +1,6 @@
 package plutoDNA_simulator
 
+import java.awt.Font
 import javax.imageio.*;
 import groovy.io.FileType
 
@@ -15,7 +16,11 @@ class Assets {
 	def static prepare() {
 		this.globalConfig = new ConfigSlurper().parse(new File('global.ini').toURL())
 		this.loadAssets(this.globalConfig.url.assets, null)
-		println ASSETS
+	
+		// Set Text Label
+		TextLabel.STANDARD_FONT = new Font(Assets.globalConfig.default_text.type,
+			Assets.globalConfig.default_text.shape,
+			Assets.globalConfig.default_text.font_size)
 	}
 	
 	def static loadAssets(directory, key) {
