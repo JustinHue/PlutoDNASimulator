@@ -2,11 +2,12 @@ package plutoDNA_simulator
 
 class SimulatorMenu extends MenuScene {
 
-	public SimulatorMenu(width, height) {
+	public SimulatorMenu(width, height) {	
 		super(width, height,
 			Assets.globalConfig.menu.title, 
 			Assets.globalConfig.menu.version, 
 			Assets.globalConfig.menu.copyright)
+		this.title = "sdf"
 	}
 
 	@Override

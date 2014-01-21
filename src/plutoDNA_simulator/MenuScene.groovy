@@ -1,5 +1,8 @@
 package plutoDNA_simulator
 
+import gui.AlignmentEnum;
+import gui.TextLabel;
+
 import java.awt.FontMetrics
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
@@ -27,7 +30,7 @@ abstract class MenuScene implements IMenuScene {
 		
 		// Temporary Graphics, used to set position of labels
 		def tg2d = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB).getGraphics()
-		def metrics = tg2d.getFontMetrics(TextLabel.STANDARD_FONT);
+		def metrics = tg2d.getFontMetrics(TextLabel.STANDARD_FONT)
 		// Grab title alignment 
 		def title_alignment = Assets.globalConfig.MenuScene.title_alignment
 		def titlex = 0, titley = 0

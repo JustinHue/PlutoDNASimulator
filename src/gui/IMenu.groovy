@@ -1,0 +1,6 @@
+package gui
+
+interface IMenu {
+
+	
+}

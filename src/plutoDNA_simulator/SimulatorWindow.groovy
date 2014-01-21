@@ -1,5 +1,6 @@
 package plutoDNA_simulator
 
+import java.awt.Container
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -45,11 +46,11 @@ class SimulatorWindow extends JFrame implements KeyListener, MouseListener {
 		this.surface = new JPanel()
 		
 		this.add(this.surface)
-		
+		Container c = this.getContentPane();
 		// Set window properties
 		this.setTitle(Assets.globalConfig.window.title)
-		this.setSize(Assets.globalConfig.window.width, Assets.globalConfig.window.height)
-		
+		c.setPreferredSize(new Dimension(Assets.globalConfig.window.width, Assets.globalConfig.window.height));
+		this.pack();
 		if (Assets.globalConfig.window.options.setDefaultCloseOperation) {
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 		}
@@ -67,10 +68,9 @@ class SimulatorWindow extends JFrame implements KeyListener, MouseListener {
 	
 	public drawToBuffer(buffer) {
 		def g2d = (Graphics2D) this.surface.getGraphics()
-		def surfaceDimension = this.surface.getSize()
-		
-		g2d.drawImage(buffer, 0, 0, this.width, this.height, 
-						      0, 0, this.width, this.height, null)
+
+		g2d.drawImage(buffer, 0, 0, Assets.globalConfig.window.width, Assets.globalConfig.window.height, 
+						      0, 0, Assets.globalConfig.window.width, Assets.globalConfig.window.height, null)
 	}
 	
 	// Depreciated, used getKeysDown()

@@ -1,6 +1,7 @@
 package plutoDNA_simulator
 
 import java.awt.image.BufferedImage
+import scene.MenuScene
 
 class Simulator {
 
@@ -12,6 +13,9 @@ class Simulator {
 	def WINDOW_HEIGHT
 	def WORLD_WIDTH 
 	def WORLD_HEIGHT
+	
+	def WINDOW_INWIDTH 
+	def WINDOW_INHEIGHT
 	
 	def window
 	def world
@@ -27,8 +31,6 @@ class Simulator {
 		this.FPS = Assets.globalConfig.graphics.fps
 		this.SECOND = Assets.globalConfig.time.second
 		this.NANOSECOND = Assets.globalConfig.time.nanosecond
-		this.WINDOW_WIDTH = Assets.globalConfig.window.width
-		this.WINDOW_HEIGHT = Assets.globalConfig.window.height
 		this.WORLD_WIDTH = Assets.globalConfig.world.width
 		this.WORLD_HEIGHT = Assets.globalConfig.world.height
 		
@@ -36,12 +38,20 @@ class Simulator {
 
 		this.window = new SimulatorWindow()
 		def windowActualSize = this.window.getSize()
-		println this.window.getSize()
-		this.menu = new SimulatorMenu((int)windowActualSize.getWidth(), (int)windowActualSize.getHeight())
+		
+		this.menu = new MenuScene()
+		//this.menu = new SimulatorMenu((int)windowActualSize.getWidth(), (int)windowActualSize.getHeight())
 		this.manipulator = new SimulatorManipulator(this.world, this.window)
 		
 		this.running = true
 		this.currentScene = SceneEnum.MENU_SCENE
+		def insize = window.getContentPane().getSize()
+		def fsize = window.getSize()
+		WINDOW_INWIDTH = (int)insize.getWidth()
+		WINDOW_INHEIGHT = (int)insize.getHeight()
+		WINDOW_WIDTH = (int)fsize.getWidth()
+		WINDOW_HEIGHT = (int)fsize.getHeight()
+
 	}
 	
 	public start() {
@@ -64,18 +74,19 @@ class Simulator {
 				if (end - start >= this.SECOND / this.FPS * this.NANOSECOND) {
 					switch (this.currentScene) {
 						case SceneEnum.MENU_SCENE:
-							if (this.menu.doneUpdating()) {
+							if (!this.menu.updating) {
 								// Render Menu
-								def menuBuffer = DrawFactory.renderMenu(this.menu, this.WINDOW_WIDTH, this.WINDOW_HEIGHT)
+								def menuBuffer = DrawFactory.renderScene(this.menu, WINDOW_INWIDTH, WINDOW_INHEIGHT)
 								this.window.drawToBuffer(menuBuffer)
 								// Update Menu
+								/*
 								this.menu.keysDown(this.window.getKeysDown())
 								this.menu.keysUp(this.window.getKeysUp())
 								this.menu.keysPressed(this.window.getKeysPressed())
 								this.menu.mousePressed(this.window.getMousePressed())
 								this.menu.mouseReleased(this.window.getMouseReleased())
 								this.menu.mouseDown(this.window.getMouseDown())
-								this.menu.mouseUp(this.window.getMouseUp())
+								this.menu.mouseUp(this.window.getMouseUp())*/
 								this.menu.update(delta_time)
 							}
 						break

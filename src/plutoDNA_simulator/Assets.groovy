@@ -1,8 +1,11 @@
 package plutoDNA_simulator
 
 import java.awt.Font
+
 import javax.imageio.*;
+
 import groovy.io.FileType
+import gui.TextLabel;
 
 class Assets {
 
