@@ -20,7 +20,7 @@ class Simulator {
 	def window
 	def world
 	def manipulator
-	def menu
+	def menuScene = new SimulatorMenuScene()
 	
 	def instance
 	def running
@@ -38,8 +38,7 @@ class Simulator {
 
 		this.window = new SimulatorWindow()
 		def windowActualSize = this.window.getSize()
-		
-		this.menu = new MenuScene()
+				
 		//this.menu = new SimulatorMenu((int)windowActualSize.getWidth(), (int)windowActualSize.getHeight())
 		this.manipulator = new SimulatorManipulator(this.world, this.window)
 		
@@ -65,29 +64,37 @@ class Simulator {
 			def delta_time = this.FPS / this.SECOND
 
 			this.window.start()
-		    this.menu.update(delta_time)
+		    this.menuScene.update(delta_time)
 			
 			def start = System.nanoTime();
 			def end = 0;
 			
 			while (this.running) {
 				if (end - start >= this.SECOND / this.FPS * this.NANOSECOND) {
+					if (menuScene.exit) {
+						currentScene = SceneEnum.SIMULATOR_SCENE 
+					} 
+					if (menuScene.quit) {
+						stop()
+						window.setVisible(false)
+						window.dispose()
+						System.exit(0)
+					}
 					switch (this.currentScene) {
 						case SceneEnum.MENU_SCENE:
-							if (!this.menu.updating) {
+							if (!this.menuScene.updating) {
 								// Render Menu
-								def menuBuffer = DrawFactory.renderScene(this.menu, WINDOW_INWIDTH, WINDOW_INHEIGHT)
+								def menuBuffer = DrawFactory.renderScene(menuScene)
 								this.window.drawToBuffer(menuBuffer)
-								// Update Menu
-								/*
-								this.menu.keysDown(this.window.getKeysDown())
-								this.menu.keysUp(this.window.getKeysUp())
-								this.menu.keysPressed(this.window.getKeysPressed())
-								this.menu.mousePressed(this.window.getMousePressed())
-								this.menu.mouseReleased(this.window.getMouseReleased())
-								this.menu.mouseDown(this.window.getMouseDown())
-								this.menu.mouseUp(this.window.getMouseUp())*/
-								this.menu.update(delta_time)
+								// Update Menu								
+								menuScene.keysDown(this.window.getKeysDown())
+								menuScene.keysUp(this.window.getKeysUp())
+								menuScene.keysPressed(this.window.getKeysPressed())
+								menuScene.mousePressed(this.window.getMousePressed())
+								menuScene.mouseReleased(this.window.getMouseReleased())
+								menuScene.mouseDown(this.window.getMouseDown())
+								menuScene.mouseUp(this.window.getMouseUp())
+								menuScene.update(delta_time)
 							}
 						break
 						case SceneEnum.SIMULATOR_SCENE:

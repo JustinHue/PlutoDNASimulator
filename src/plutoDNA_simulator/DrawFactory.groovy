@@ -101,8 +101,11 @@ class DrawFactory {
 		return entityImage
 	}
 	
-	def static renderScene(scene, width, height) {
-		println "Render Width: $width Render Height: $height"
+	def static renderScene(scene) {
+		
+		def width = scene.getWidth()
+		def height = scene.getHeight()
+		
 		def sceneImage = new BufferedImage(width, height,
 			BufferedImage.TYPE_INT_RGB)
 		def g2d = sceneImage.createGraphics()
@@ -112,91 +115,214 @@ class DrawFactory {
 		g2d.fillRect(0, 0, width, height)
 		
 		scene.getComponents().each {it ->
-			g2d.setColor(Color.WHITE)
-			g2d.setFont(it.font);
-			FontMetrics fontMetrics = g2d.getFontMetrics(it.font)
-			def itwidth = fontMetrics.stringWidth(it.text)
-			def itheight = fontMetrics.getHeight()
-			def coordinates = it.coordinate.clone()
-			// Set position of label based on Alignment and coordinates. If the alignment
-			// is already set the coordinates will be used as an offset.
-			switch (it.alignment) {
-				case AlignmentEnum.TOP_LEFT:
-					coordinates[0] = width / 4 - itwidth / 2
-					coordinates[1] = height / 4 - itheight / 2
+			// Determine what type of component it is
+			switch (it.getClass().getName()) {
+				case "gui.TextLabel":
+					renderTextLabel(scene, g2d, it)
 				break
-				case AlignmentEnum.TOP_MIDDLE:
-					coordinates[0] = width / 2 - itwidth / 2
-					coordinates[1] = height / 4 - itheight / 2
-				break
-				case AlignmentEnum.TOP_RIGHT:
-					coordinates[0] = width / 4 * 3 - itwidth / 2
-					coordinates[1] = height / 4 - itheight / 2
-				break
-				case AlignmentEnum.LEFT:
-					coordinates[0] = width / 4 - itwidth / 2
-					coordinates[1] = height / 2 - itheight / 2
-				break
-				case AlignmentEnum.MIDDLE:
-					coordinates[0] = width / 2 - itwidth / 2
-					coordinates[1] = height / 2 - itheight / 2
-				break
-				case AlignmentEnum.RIGHT:
-					coordinates[0] = width / 4 * 3 - itwidth / 2
-					coordinates[1] = height / 2 - itheight / 2
-				break
-				case AlignmentEnum.BOTTOM_LEFT:
-					coordinates[0] = width / 4 - itwidth / 2
-					coordinates[1] = 3 * height / 4 - itheight / 2
-				break
-				case AlignmentEnum.BOTTOM_MIDDLE:
-					coordinates[0] = width / 2 - itwidth / 2
-					coordinates[1] = 3 * height / 4 - itheight / 2
-				break
-				case AlignmentEnum.BOTTOM_RIGHT:
-					coordinates[0] = width / 4 * 3 - itwidth / 2
-					coordinates[1] = 3 * height / 4 - itheight / 2
-				break	
-				case AlignmentEnum.FLUSH_TOP_LEFT:
-					coordinates[0] = 0
-					coordinates[1] = 0
-				break
-				case AlignmentEnum.FLUSH_TOP_RIGHT:
-					coordinates[0] = width - itwidth
-					coordinates[1] = 0
-				break
-				case AlignmentEnum.FLUSH_BOTTOM_LEFT:
-					coordinates[0] = 0
-					coordinates[1] = height - itheight
-				break
-				case AlignmentEnum.FLUSH_BOTTOM_RIGHT:
-					coordinates[0] = width - itwidth
-					coordinates[1] = height - itheight
-				break
-				case AlignmentEnum.FLUSH_TOP:
-					coordinates[0] = width / 2 - itwidth / 2
-					coordinates[1] = 0
-				break
-				case AlignmentEnum.FLUSH_LEFT:
-					coordinates[0] = 0
-					coordinates[1] = height / 2 - itheight / 2
-				break
-				case AlignmentEnum.FLUSH_RIGHT:
-					coordinates[0] = width - itwidth
-					coordinates[1] = height / 2 - itheight / 2
-				break
-				case AlignmentEnum.FLUSH_BOTTOM:
-					coordinates[0] = width / 2 - itwidth / 2
-					coordinates[1] = height - itheight
+				case "gui.Menu":
+					renderMenu(scene, g2d, it)
 				break
 			}
-			coordinates[0] += it.coordinate[0]
-			coordinates[1] += it.coordinate[1]
-			g2d.drawString(it.text, coordinates[0], coordinates[1] + fontMetrics.getAscent())
-
+			
 		}
 		
 		return sceneImage
+	}
+	
+	/*
+	 * Render Menu onto scene using g2d
+	 */
+	def static renderMenu(scene, g2d, menu) {
+		menu.items.each {it ->
+			it.color = (it.selected) ? menu.selectedColor : menu.unselectedColor			
+			renderMenuItem(scene, g2d, it)
+		}
+	}
+	
+	/*
+	 * Render Menu Item onto scene using g2d
+	 */
+	def static renderMenuItem(scene, g2d, menuItem) {
+		
+		def width = scene.getWidth()
+		def height = scene.getHeight()
+		
+		g2d.setColor(menuItem.color)
+		g2d.setFont(menuItem.font);
+		FontMetrics fontMetrics = g2d.getFontMetrics(menuItem.font)
+		def itwidth = fontMetrics.stringWidth(menuItem.text)
+		def itheight = fontMetrics.getHeight()
+		def coordinates = menuItem.coordinate.clone()
+		// Set position of label based on Alignment and coordinates. If the alignment
+		// is already set the coordinates will be used as an offset.
+		switch (menuItem.alignment) {
+			case AlignmentEnum.TOP_LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.TOP_MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.TOP_RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_TOP_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_TOP_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_BOTTOM_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = height - itheight
+			break
+			case AlignmentEnum.FLUSH_BOTTOM_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = height - itheight
+			break
+			case AlignmentEnum.FLUSH_TOP:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_BOTTOM:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height - itheight
+			break
+		}
+		coordinates[0] += menuItem.coordinate[0]
+		coordinates[1] += menuItem.coordinate[1]
+		g2d.drawString(menuItem.text, coordinates[0], coordinates[1] + fontMetrics.getAscent())
+
+		
+	}
+	
+	/*
+	 * Render Text Label onto scene using g2d
+	 */
+	def static renderTextLabel(scene, g2d, label) {
+		
+		def width = scene.getWidth()
+		def height = scene.getHeight()
+		
+		g2d.setColor(label.color)
+		g2d.setFont(label.font);
+		FontMetrics fontMetrics = g2d.getFontMetrics(label.font)
+		def itwidth = fontMetrics.stringWidth(label.text)
+		def itheight = fontMetrics.getHeight()
+		def coordinates = label.coordinate.clone()
+		// Set position of label based on Alignment and coordinates. If the alignment
+		// is already set the coordinates will be used as an offset.
+		switch (label.alignment) {
+			case AlignmentEnum.TOP_LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.TOP_MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.TOP_RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = height / 4 - itheight / 2
+			break
+			case AlignmentEnum.LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_LEFT:
+				coordinates[0] = width / 4 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_MIDDLE:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.BOTTOM_RIGHT:
+				coordinates[0] = width / 4 * 3 - itwidth / 2
+				coordinates[1] = 3 * height / 4 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_TOP_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_TOP_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_BOTTOM_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = height - itheight
+			break
+			case AlignmentEnum.FLUSH_BOTTOM_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = height - itheight
+			break
+			case AlignmentEnum.FLUSH_TOP:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = 0
+			break
+			case AlignmentEnum.FLUSH_LEFT:
+				coordinates[0] = 0
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_RIGHT:
+				coordinates[0] = width - itwidth
+				coordinates[1] = height / 2 - itheight / 2
+			break
+			case AlignmentEnum.FLUSH_BOTTOM:
+				coordinates[0] = width / 2 - itwidth / 2
+				coordinates[1] = height - itheight
+			break
+		}
+		coordinates[0] += label.coordinate[0]
+		coordinates[1] += label.coordinate[1]
+		g2d.drawString(label.text, coordinates[0], coordinates[1] + fontMetrics.getAscent())
+
 	}
 	
 }

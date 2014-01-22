@@ -8,6 +8,12 @@ abstract class Scene implements IScene {
 	
 	def components = []
 	
+	def width = 800
+	def height = 600
+	
+	def exit = false
+	def quit = false
+	
 	@Override
 	public def addComponent(component) {
 		this.components.add(component) 

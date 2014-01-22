@@ -1,15 +1,11 @@
 package gui
 
-class MenuItem {
+class MenuItem extends TextLabel {
 
-	private def label
+	boolean selected = false
 	
-	public MenuItem() {
-		this.label = new TextLabel("Menu Item")
-	}
-	
-	public MenuItem(label) {
-		this.label = label
+	MenuItem() {
+		text = "Menu Item"
 	}
 	
 }
